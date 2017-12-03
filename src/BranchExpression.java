@@ -7,9 +7,15 @@ public class BranchExpression extends AbstractCompoundExpression implements Comp
         super(str);
     }
 
+    /**
+     * Recursively flattens the expression as much as possible
+     * throughout the entire tree. Specifically, in every multiplicative
+     * or additive expression x whose first or last
+     * child c is of the same type as x, the children of c will be added to x, and
+     * c itself will be removed. This method modifies the expression itself.
+     */
     @Override
     public void flatten() {
-        // todo: need to test the correctness of the method
         List<Expression> newChildren = new LinkedList<>(_children);
         for (Expression expr: _children){
             expr.flatten();
@@ -19,9 +25,11 @@ public class BranchExpression extends AbstractCompoundExpression implements Comp
                 for (Expression childrenToBeFlattened: ((BranchExpression) expr)._children) {
                     childrenToBeFlattened.setParent(this);
                 }
+                // add children of expr to this Expression
                 newChildren.remove(expr);
                 newChildren.addAll(idx, ((BranchExpression) expr)._children);
             }
         }
+        _children = newChildren;
     }
 }
