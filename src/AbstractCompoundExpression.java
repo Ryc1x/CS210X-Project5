@@ -5,6 +5,10 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
 
     List<Expression> _children = new LinkedList<>();
 
+    /**
+     * Create the Expression with the given value
+     * @param str the value of Expression
+     */
     public AbstractCompoundExpression (String str){
         super(str);
     }
@@ -20,9 +24,8 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
         StringBuffer sb = new StringBuffer("");
         indent(sb,indentLevel);
         sb.append(_value);
-        // todo "\n" issue
+        sb.append("\n");
         for (Expression expr: _children){
-            sb.append("\n");
             sb.append(expr.convertToString(indentLevel + 1));
         }
         return sb.toString();

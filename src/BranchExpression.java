@@ -3,6 +3,10 @@ import java.util.List;
 
 public class BranchExpression extends AbstractCompoundExpression implements CompoundExpression {
 
+    /**
+     * Create the Expression with the given value
+     * @param str the value of Expression
+     */
     public BranchExpression (String str){
         super(str);
     }

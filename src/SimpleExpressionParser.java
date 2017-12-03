@@ -7,6 +7,7 @@
  * L := [0-9]+ | [a-z]
  */
 public class SimpleExpressionParser implements ExpressionParser {
+
 	/**
 	 * Attempts to create an expression tree -- flattened as much as possible -- from the specified String.
 	 * Throws a ExpressionParseException if the specified string cannot be parsed.
@@ -27,7 +28,12 @@ public class SimpleExpressionParser implements ExpressionParser {
 		expression.flatten();
 		return expression;
 	}
-	
+
+    /**
+     * Attempt to parse the expression based on E grammar
+     * @param str the string need to be parsed
+     * @return parsed Expression
+     */
 	protected Expression parseE (String str) {
         // E := A | X
 	    Expression expression;
@@ -46,6 +52,11 @@ public class SimpleExpressionParser implements ExpressionParser {
         return null;
 	}
 
+    /**
+     * Attempt to parse the expression based on A grammar
+     * @param str the string need to be parsed
+     * @return parsed Expression
+     */
     protected  Expression parseA (String str){
         // A := A+M | M
         Expression expression1, expression2;
@@ -59,6 +70,8 @@ public class SimpleExpressionParser implements ExpressionParser {
                 CompoundExpression additiveExpression = new AdditiveExpression();
                 additiveExpression.addSubexpression(expression1);
                 additiveExpression.addSubexpression(expression2);
+                expression1.setParent(additiveExpression);
+                expression2.setParent(additiveExpression);
                 return additiveExpression;
             }
             indexOfPlus = str.indexOf('+', indexOfPlus+1);
@@ -73,6 +86,11 @@ public class SimpleExpressionParser implements ExpressionParser {
         return null;
     }
 
+    /**
+     * Attempt to parse the expression based on M grammar
+     * @param str the string need to be parsed
+     * @return parsed Expression
+     */
     protected  Expression parseM (String str){
         // M := M*M | X
         Expression expression1, expression2;
@@ -87,6 +105,8 @@ public class SimpleExpressionParser implements ExpressionParser {
                 CompoundExpression multiplicativeExpression = new MultiplicativeExpression();
                 multiplicativeExpression.addSubexpression(expression1);
                 multiplicativeExpression.addSubexpression(expression2);
+                expression1.setParent(multiplicativeExpression);
+                expression2.setParent(multiplicativeExpression);
                 return multiplicativeExpression;
             }
             indexOfTimes = str.indexOf(str.contains("·")?'·':'*', indexOfTimes+1);
@@ -101,6 +121,11 @@ public class SimpleExpressionParser implements ExpressionParser {
         return null;
     }
 
+    /**
+     * Attempt to parse the expression based on X grammar
+     * @param str the string need to be parsed
+     * @return parsed Expression
+     */
     protected  Expression parseX (String str){
         // X := (E) | L
         Expression expression;
@@ -113,6 +138,7 @@ public class SimpleExpressionParser implements ExpressionParser {
             if (expression != null) {
                 CompoundExpression parentheticalExpression = new ParentheticalExpression();
                 parentheticalExpression.addSubexpression(expression);
+                expression.setParent(parentheticalExpression);
                 return parentheticalExpression;
             }
         }
@@ -126,6 +152,11 @@ public class SimpleExpressionParser implements ExpressionParser {
         return null;
     }
 
+    /**
+     * Attempt to parse the expression based on L grammar
+     * @param str the string need to be parsed
+     * @return parsed Expression
+     */
     protected  Expression parseL (String str){
         // L := [0-9]+ | [a-z]
         Expression expression;
@@ -139,5 +170,4 @@ public class SimpleExpressionParser implements ExpressionParser {
         // Else it is not a valid expression
         return null;
     }
-    // todo set the parents?
 }

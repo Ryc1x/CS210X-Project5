@@ -3,6 +3,10 @@ public class LiteralExpression implements Expression{
     private CompoundExpression _parent;
     String _value;
 
+    /**
+     * Create the Expression with given value
+     * @param str the value of Expression
+     */
     public LiteralExpression (String str){
         _value = str;
     }
@@ -56,6 +60,7 @@ public class LiteralExpression implements Expression{
         StringBuffer sb = new StringBuffer("");
         indent(sb,indentLevel);
         sb.append(_value);
+        sb.append("\n");
         return sb.toString();
     }
 
