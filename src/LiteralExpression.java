@@ -1,7 +1,12 @@
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+
 public class LiteralExpression implements Expression{
 
     private CompoundExpression _parent;
     String _value;
+    Node _node;
+    private int _x, _y;
 
     /**
      * Create the Expression with given value
@@ -9,6 +14,7 @@ public class LiteralExpression implements Expression{
      */
     public LiteralExpression (String str){
         _value = str;
+        //_node = new Label(str); //todo fix
     }
 
     /**
@@ -34,8 +40,15 @@ public class LiteralExpression implements Expression{
      * @return the deep copy
      */
     public Expression deepCopy (){
-        Expression copy = new LiteralExpression(_value);
-        return copy;
+        return new LiteralExpression(_value);
+    }
+
+    /**
+     * Returns the JavaFX node associated with this expression.
+     * @return the JavaFX node associated with this expression.
+     */
+    public Node getNode (){
+        return _node;
     }
 
     /**
@@ -46,8 +59,7 @@ public class LiteralExpression implements Expression{
      * c itself will be removed. This method modifies the expression itself.
      */
     public void flatten (){
-        //todo the flatten of expression;
-        // does nothing to a LE
+        // Don't need to do anything
     }
 
     /**
@@ -58,21 +70,9 @@ public class LiteralExpression implements Expression{
      */
     public String convertToString (int indentLevel){
         StringBuffer sb = new StringBuffer("");
-        indent(sb,indentLevel);
+        Expression.indent(sb,indentLevel);
         sb.append(_value);
         sb.append("\n");
         return sb.toString();
-    }
-
-    /**
-     * Static helper method to indent a specified number of times from the left margin, by
-     * appending tab characters to teh specified StringBuffer.
-     * @param sb the StringBuffer to which to append tab characters.
-     * @param indentLevel the number of tabs to append.
-     */
-    public static void indent (StringBuffer sb, int indentLevel) {
-        for (int i = 0; i < indentLevel; i++) {
-            sb.append('\t');
-        }
     }
 }

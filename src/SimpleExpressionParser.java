@@ -57,7 +57,7 @@ public class SimpleExpressionParser implements ExpressionParser {
      * @param str the string need to be parsed
      * @return parsed Expression
      */
-    protected  Expression parseA (String str){
+    private  Expression parseA (String str){
         // A := A+M | M
         Expression expression1, expression2;
         
@@ -91,10 +91,9 @@ public class SimpleExpressionParser implements ExpressionParser {
      * @param str the string need to be parsed
      * @return parsed Expression
      */
-    protected  Expression parseM (String str){
+    private Expression parseM(String str){
         // M := M*M | X
         Expression expression1, expression2;
-
 
         // Fist try M*M
         int indexOfTimes = str.indexOf(str.contains("·")?"·":"*");
@@ -126,7 +125,7 @@ public class SimpleExpressionParser implements ExpressionParser {
      * @param str the string need to be parsed
      * @return parsed Expression
      */
-    protected  Expression parseX (String str){
+    private Expression parseX(String str){
         // X := (E) | L
         Expression expression;
 
@@ -157,7 +156,7 @@ public class SimpleExpressionParser implements ExpressionParser {
      * @param str the string need to be parsed
      * @return parsed Expression
      */
-    protected  Expression parseL (String str){
+    private Expression parseL(String str){
         // L := [0-9]+ | [a-z]
         Expression expression;
 

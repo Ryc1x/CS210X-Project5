@@ -1,3 +1,7 @@
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,13 +26,28 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
     @Override
     public String convertToString(int indentLevel) {
         StringBuffer sb = new StringBuffer("");
-        indent(sb,indentLevel);
+        Expression.indent(sb,indentLevel);
         sb.append(_value);
         sb.append("\n");
         for (Expression expr: _children){
             sb.append(expr.convertToString(indentLevel + 1));
         }
         return sb.toString();
+    }
+
+    @Override
+    /**
+     * Returns the JavaFX node associated with this expression.
+     * @return the JavaFX node associated with this expression.
+     */
+    public Node getNode (){
+        HBox box = new HBox();
+        for (Expression expr: _children) {
+            box.getChildren().add(expr.getNode());
+            box.getChildren().add(new Label(_value));
+        }
+        //todo remove the last one.
+        return box;
     }
 
     /**
