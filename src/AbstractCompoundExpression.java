@@ -4,13 +4,13 @@ import java.util.List;
 abstract public class AbstractCompoundExpression extends LiteralExpression implements CompoundExpression{
 
     List<Expression> _children = new LinkedList<>();
-
+    // THIS IS MY COMMENT
     /**
      * Create the Expression with the given value
-     * @param str the value of Expression
+     * @param string the value of Expression
      */
-    public AbstractCompoundExpression (String str){
-        super(str);
+    public AbstractCompoundExpression (String string){
+        super(string);
     }
 
     /**
