@@ -51,10 +51,10 @@ public class ExpressionEditor extends Application {
 		}
 
 		private Expression getNextFocusExpression(double mouseX, double mouseY, AbstractCompoundExpression expression){
-            Bounds bound = expression.getNode().getLayoutBounds();
+            Bounds bound = expression.getNode().localToScene(expression.getNode().getBoundsInLocal());
             double minX, maxX, minY, maxY;
-            minY = bound.getMinY() + expression.getNode().getLayoutY();
-            maxY = bound.getMaxY() + expression.getNode().getLayoutY();
+            minY = bound.getMinY();
+            maxY = bound.getMaxY();
             System.out.println("mouseX " + mouseX + " | mouseY " + mouseY);
             System.out.println("minY " + minY + " | maxY " + maxY);
             System.out.println("layoutX " + expression.getNode().getLayoutX() + "layoutY " + expression.getNode().getLayoutY());
@@ -63,9 +63,9 @@ public class ExpressionEditor extends Application {
             if (mouseY < minY || mouseY > maxY)
                 return null;
 		    for (Expression expr: expression._children) {
-                bound = expr.getNode().getLayoutBounds();
-                minX = bound.getMinX() + expr.getNode().getLayoutX();
-                maxX = bound.getMaxX() + expr.getNode().getLayoutX();
+                bound = expr.getNode().localToScene(expr.getNode().getBoundsInLocal());
+                minX = bound.getMinX();
+                maxX = bound.getMaxX();
                 if (mouseX > minX && mouseX < maxX)
                     return expr;
             }
