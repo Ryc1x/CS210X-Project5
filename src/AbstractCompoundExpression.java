@@ -35,21 +35,6 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
         return sb.toString();
     }
 
-    @Override
-    /**
-     * Returns the JavaFX node associated with this expression.
-     * @return the JavaFX node associated with this expression.
-     */
-    public Node getNode (){
-        HBox box = new HBox();
-        for (Expression expr: _children) {
-            box.getChildren().add(expr.getNode());
-            box.getChildren().add(new Label(_value));
-        }
-        //todo remove the last one.
-        return box;
-    }
-
     /**
      * Recursively flattens the expression as much as possible
      * throughout the entire tree. Specifically, in every multiplicative
@@ -72,7 +57,6 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
      */
     @Override
     public Expression deepCopy() {
-        //todo check if the method is implemented correctly
         CompoundExpression copy = new BranchExpression(_value);
         for (Expression expr: _children) {
             Expression child = expr.deepCopy();

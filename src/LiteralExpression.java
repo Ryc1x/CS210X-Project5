@@ -1,12 +1,16 @@
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 
 public class LiteralExpression implements Expression{
 
     private CompoundExpression _parent;
-    String _value;
     Node _node;
-    private int _x, _y;
+    String _value;
+
+    final Font DEFAULT_FONT = new Font("Cambria Math", 24.0);
+
 
     /**
      * Create the Expression with given value
@@ -14,7 +18,6 @@ public class LiteralExpression implements Expression{
      */
     public LiteralExpression (String str){
         _value = str;
-        //_node = new Label(str); //todo fix
     }
 
     /**
@@ -48,6 +51,11 @@ public class LiteralExpression implements Expression{
      * @return the JavaFX node associated with this expression.
      */
     public Node getNode (){
+        if (_node == null){
+            Label label = new Label(_value);
+            label.setFont(DEFAULT_FONT);
+            _node = new HBox(label);
+        }
         return _node;
     }
 

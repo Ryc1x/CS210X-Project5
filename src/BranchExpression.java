@@ -1,3 +1,7 @@
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,6 +13,30 @@ public class BranchExpression extends AbstractCompoundExpression implements Comp
      */
     public BranchExpression (String str){
         super(str);
+    }
+
+
+    @Override
+    /**
+     * Returns the JavaFX node associated with this expression.
+     * @return the JavaFX node associated with this expression.
+     */
+    public Node getNode (){
+        if (_node == null) {
+            HBox box = new HBox();
+            Label label = new Label();
+            label.setFont(DEFAULT_FONT);
+            box.getChildren().add(_children.get(0).getNode()); // add the first LiteralExpression
+            for (int i = 1; i < _children.size(); i++) {
+                // put "+" or "*" between numbers/letters
+                label = new Label(_value);
+                label.setFont(DEFAULT_FONT);
+                box.getChildren().add(label);
+                box.getChildren().add(_children.get(i).getNode());
+            }
+            _node = box;
+        }
+        return _node;
     }
 
     /**
