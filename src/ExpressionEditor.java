@@ -20,8 +20,10 @@ public class ExpressionEditor extends Application {
 	 * Mouse event handler for the entire pane that constitutes the ExpressionEditor
 	 */
 	private static class MouseEventHandler implements EventHandler<MouseEvent> {
-	    Expression _focus, _root;
-		MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
+	    Expression _focus, _root, _copy;
+        double _lastX, _lastY;
+
+	    MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
 		    _focus = rootExpression_;
 		    _root = rootExpression_;
 		}
@@ -32,22 +34,32 @@ public class ExpressionEditor extends Application {
             Expression nextFocus;
 
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-			    nextFocus =getNextFocusExpression(sceneX, sceneY, (AbstractCompoundExpression) _focus);
-			    if (nextFocus != null){
+			    if (_focus instanceof CompoundExpression)
+                    nextFocus = getNextFocusExpression(sceneX, sceneY, (AbstractCompoundExpression) _focus);
+                else
+                    nextFocus = null;
+
+                if (nextFocus != null) {
                     ((Pane) _focus.getNode()).setBorder(Expression.NO_BORDER);
                     _focus = nextFocus;
                     ((Pane) _focus.getNode()).setBorder(Expression.RED_BORDER);
-                }
-                else{
+                } else {
                     ((Pane) _focus.getNode()).setBorder(Expression.NO_BORDER);
                     _focus = _root;
-
                 }
 			}
             else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+			    _copy = _focus.deepCopy();
+			    Node copiedNode = _copy.getNode();
+
+                copiedNode.setTranslateX(copiedNode.getTranslateX() + (sceneX - _lastX));
+                copiedNode.setTranslateY(copiedNode.getTranslateY() + (sceneY - _lastY));
             }
             else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
             }
+
+            _lastX = sceneX;
+            _lastY = sceneY;
 		}
 
 		private Expression getNextFocusExpression(double mouseX, double mouseY, AbstractCompoundExpression expression){
@@ -111,6 +123,12 @@ public class ExpressionEditor extends Application {
                 expressionPane.getChildren().add(expression.getNode());
                 expression.getNode().setLayoutX(WINDOW_WIDTH/4);
                 expression.getNode().setLayoutY(WINDOW_HEIGHT/3);
+
+
+                Expression copy = expression.deepCopy();
+                expressionPane.getChildren().add(copy.getNode());
+                copy.getNode().setLayoutX(WINDOW_WIDTH/4);
+                copy.getNode().setLayoutY(WINDOW_HEIGHT*2/3);
 
                 // If the parsed expression is a CompoundExpression, then register some callbacks
                 if (expression instanceof CompoundExpression) {

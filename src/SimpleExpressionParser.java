@@ -34,7 +34,7 @@ public class SimpleExpressionParser implements ExpressionParser {
      * @param str the string need to be parsed
      * @return parsed Expression
      */
-	protected Expression parseE (String str) {
+	private Expression parseE (String str) {
         // E := A | X
 	    Expression expression;
         

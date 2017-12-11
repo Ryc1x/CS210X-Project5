@@ -11,6 +11,27 @@ public class ParentheticalExpression extends AbstractCompoundExpression{
         super("()");
     }
 
+
+    /**
+     * Creates and returns a deep copy of the expression.
+     * The entire tree rooted at the target node is copied, i.e.,
+     * the copied Expression is as deep as possible.
+     * @return the deep copy
+     */
+    @Override
+    public Expression deepCopy() {
+        CompoundExpression copy = new ParentheticalExpression();
+        for (Expression expr: _children) {
+            Expression child = expr.deepCopy();
+            copy.addSubexpression(child);
+            child.setParent(copy);
+        }
+        //copy.getNode();
+        // todo: fix deepCopy for drag
+        return copy;
+    }
+
+
     @Override
     /**
      * Returns the JavaFX node associated with this expression.

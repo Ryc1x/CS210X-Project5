@@ -7,6 +7,8 @@ public class Test{
         Expression expr = parser.parse("((4+74)*x+(63+a)*y+1+2+3+4+5*(6*7*8*9+(((e)))))",false);
         System.out.println(expr.convertToString(0));
 
+        System.out.println(expr.deepCopy().convertToString(0));
+
         javafx.scene.text.Font.getFamilies().forEach(System.out::println);
 
     }

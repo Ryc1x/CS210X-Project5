@@ -1,7 +1,3 @@
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,24 +44,6 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
             expr.flatten();
         }
     }
-
-    /**
-     * Creates and returns a deep copy of the expression.
-     * The entire tree rooted at the target node is copied, i.e.,
-     * the copied Expression is as deep as possible.
-     * @return the deep copy
-     */
-    @Override
-    public Expression deepCopy() {
-        CompoundExpression copy = new BranchExpression(_value);
-        for (Expression expr: _children) {
-            Expression child = expr.deepCopy();
-            copy.addSubexpression(child);
-            child.setParent(copy);
-        }
-        return copy;
-    }
-
 
     /**
      * Adds the specified expression as a child.
