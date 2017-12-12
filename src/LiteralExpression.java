@@ -1,16 +1,13 @@
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
+import javafx.scene.paint.Color;
 
 public class LiteralExpression implements Expression{
 
-    private CompoundExpression _parent;
+    CompoundExpression _parent;
     Node _node;
     String _value;
-
-    final Font DEFAULT_FONT = new Font("Cambria Math", 24.0);
-
 
     /**
      * Create the Expression with given value
@@ -54,9 +51,16 @@ public class LiteralExpression implements Expression{
         if (_node == null){
             Label label = new Label(_value);
             label.setFont(DEFAULT_FONT);
-            _node = new HBox(label);
+            _node = label;
         }
         return _node;
+    }
+
+    /**
+     * Remove the JavaFX node associated with this expression.
+     */
+    public void clearNode (){
+        _node = null;
     }
 
     /**
@@ -68,6 +72,50 @@ public class LiteralExpression implements Expression{
      */
     public void flatten (){
         // Don't need to do anything
+    }
+
+    /**
+     * Return the absolute x coordinate of the node.
+     * @return the absolute x coordinate of the node.
+     */
+    public double getX (){
+        if (_parent != null)
+            return _node.getLayoutX() + _parent.getX();
+        else
+            return _node.getLayoutX() ;
+    }
+
+    /**
+     * Return the absolute x coordinate of the node.
+     * @return the absolute x coordinate of the node.
+     */
+    public double getY (){
+        if (_parent != null)
+            return _node.getLayoutY() + _parent.getY();
+        else
+            return _node.getLayoutY();
+    }
+
+    /**
+     * Set the JavaFX node with a red border.
+     */
+    public void addRedBorder (){
+        ((Label)_node).setBorder(RED_BORDER);
+    }
+
+    /**
+     * Remove the red border of the JvavaFX node.
+     */
+    public void removeRedBorder (){
+        ((Label)_node).setBorder(NO_BORDER);
+    }
+
+    /**
+     * Change the color of the node
+     * @param color the color to be assigned to the node
+     */
+    public void changeColor (Color color){
+        ((Label) _node).setTextFill(color);
     }
 
     /**

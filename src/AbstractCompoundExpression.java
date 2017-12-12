@@ -1,3 +1,8 @@
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,10 +51,78 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
     }
 
     /**
+     * Return the absolute x coordinate of the node.
+     * @return the absolute x coordinate of the node.
+     */
+    public double getX (){
+        if (_parent != null)
+            return _node.getLayoutX() + _parent.getX();
+        else
+            return _node.getLayoutX() ;
+    }
+
+    /**
+     * Return the absolute x coordinate of the node.
+     * @return the absolute x coordinate of the node.
+     */
+    public double getY () {
+        if (_parent != null)
+            return _node.getLayoutY() + _parent.getY();
+        else
+            return _node.getLayoutY();
+    }
+
+    /**
+     * Set the JavaFX node with a red border.
+     */
+    public void addRedBorder (){
+        ((HBox)_node).setBorder(RED_BORDER);
+    }
+
+    /**
+     * Remove the red border of the JvavaFX node.
+     */
+    public void removeRedBorder (){
+        ((HBox)_node).setBorder(NO_BORDER);
+    }
+
+    /**
+     * Change the color of the node
+     * @param color the color to be assigned to the node
+     */
+    public void changeColor (Color color){
+        for (Node child: ((HBox) _node).getChildren()) {
+            recursiveChangeColor(child, color);
+        }
+    }
+
+    /**
+     * Recursively change the color of the node
+     * @param node the node need to be changing color
+     * @param color the color to be assigned to the node
+     */
+    private void recursiveChangeColor (Node node, Color color) {
+        if (node instanceof Label)
+            ((Label) node).setTextFill(color);
+        else {
+            for (Node child: ((HBox) node).getChildren()) {
+                recursiveChangeColor(child, color);
+            }
+        }
+    }
+
+    /**
      * Adds the specified expression as a child.
      * @param subexpression the child expression to add
      */
     public void addSubexpression (Expression subexpression){
         _children.add(subexpression);
+    }
+
+    /**
+     * Return the children of the expression
+     */
+    public List<Expression> getChildren () {
+        return _children;
     }
 }

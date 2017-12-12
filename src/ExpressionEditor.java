@@ -3,13 +3,19 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class ExpressionEditor extends Application {
 	public static void main (String[] args) {
@@ -20,12 +26,18 @@ public class ExpressionEditor extends Application {
 	 * Mouse event handler for the entire pane that constitutes the ExpressionEditor
 	 */
 	private static class MouseEventHandler implements EventHandler<MouseEvent> {
+	    Pane _pane;
 	    Expression _focus, _root, _copy;
+	    Node _copiedNode;
+	    List<Double> _possibleXValues;
+	    HashMap<Double, Expression> _possibleConfigs;
         double _lastX, _lastY;
+        boolean _isDragging;
 
 	    MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
 		    _focus = rootExpression_;
 		    _root = rootExpression_;
+		    _pane = pane_;
 		}
 
 		public void handle (MouseEvent event) {
@@ -33,30 +45,46 @@ public class ExpressionEditor extends Application {
             final double sceneY = event.getSceneY();
             Expression nextFocus;
 
+            // debugging:
+            System.out.println("mouseX " + sceneX + " | mouseY " + sceneY);
+
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-			    if (_focus instanceof CompoundExpression)
+                if (_focus != _root) {
+                    _focus.changeColor(Expression.GHOST_COLOR);
+                    _copy = _focus.deepCopy();
+                    _copiedNode = _copy.getNode();
+                    _copiedNode.setLayoutX(_focus.getX());
+                    _copiedNode.setLayoutY(_focus.getY());
+                    _pane.getChildren().add(_copiedNode);
+
+                    // todo: solve click-drag lvl issue
+                }
+			}
+            else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED && _copiedNode != null) {
+                // helper: return the expression of nearest x
+
+                _copiedNode.setTranslateX(_copiedNode.getTranslateX() + (sceneX - _lastX));
+                _copiedNode.setTranslateY(_copiedNode.getTranslateY() + (sceneY - _lastY));
+            }
+            else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
+                if (_focus instanceof CompoundExpression)
                     nextFocus = getNextFocusExpression(sceneX, sceneY, (AbstractCompoundExpression) _focus);
                 else
                     nextFocus = null;
 
                 if (nextFocus != null) {
-                    ((Pane) _focus.getNode()).setBorder(Expression.NO_BORDER);
+                    _focus.removeRedBorder();
                     _focus = nextFocus;
-                    ((Pane) _focus.getNode()).setBorder(Expression.RED_BORDER);
+                    _focus.addRedBorder();
                 } else {
-                    ((Pane) _focus.getNode()).setBorder(Expression.NO_BORDER);
+                    _focus.removeRedBorder();
                     _focus = _root;
                 }
-			}
-            else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-			    _copy = _focus.deepCopy();
-			    Node copiedNode = _copy.getNode();
 
-                copiedNode.setTranslateX(copiedNode.getTranslateX() + (sceneX - _lastX));
-                copiedNode.setTranslateY(copiedNode.getTranslateY() + (sceneY - _lastY));
+			    _pane.getChildren().remove(_copiedNode);
+                _focus.changeColor(Color.BLACK);
             }
-            else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
-            }
+
 
             _lastX = sceneX;
             _lastY = sceneY;
@@ -67,9 +95,8 @@ public class ExpressionEditor extends Application {
             double minX, maxX, minY, maxY;
             minY = bound.getMinY();
             maxY = bound.getMaxY();
-            System.out.println("mouseX " + mouseX + " | mouseY " + mouseY);
-            System.out.println("minY " + minY + " | maxY " + maxY);
-            System.out.println("layoutX " + expression.getNode().getLayoutX() + "layoutY " + expression.getNode().getLayoutY());
+            //System.out.println("minY " + minY + " | maxY " + maxY);
+            //System.out.println("layoutX " + expression.getNode().getLayoutX() + "layoutY " + expression.getNode().getLayoutY());
 
 
             if (mouseY < minY || mouseY > maxY)
@@ -83,6 +110,40 @@ public class ExpressionEditor extends Application {
             }
 		    return null;
         }
+
+        private HashMap<Double, Expression> generatePossibleExpressions (CompoundExpression parent) {
+            HashMap<Double, Expression> possibleExpressions = new HashMap<>();
+            for (int i = 0; i < parent.getChildren().size(); i++){
+                CompoundExpression newParent = (CompoundExpression) parent.deepCopy();
+                newParent.getChildren().remove(_focus);
+                newParent.getChildren().add(i,_focus);
+                newParent.clearNode();
+                possibleExpressions.put(parent.getChildren().get(i).getX(), newParent);
+            }
+            return possibleExpressions;
+        }
+
+        private void generatePossibleXValues (CompoundExpression parent){
+	        double initialX = parent.getX();
+	        int idxOfFocus = ((HBox) parent.getNode()).getChildren().indexOf(_focus.getNode());
+	        CompoundExpression modifiedParent = (CompoundExpression) parent.deepCopy();
+            HBox modifiedNode = (HBox) modifiedParent.getNode();
+	        modifiedNode.getChildren().remove(idxOfFocus);
+            modifiedNode.getChildren().add(_focus.getNode()); // last possible position of the node.
+            for (Node node : modifiedNode.getChildren()) {
+                _possibleXValues.add(initialX + node.getLayoutX());
+            }
+            _possibleXValues.forEach(System.out::print);
+        }
+
+        private double getNearestConfigXValue (double mouseX) {
+	        double min = Double.MAX_VALUE;
+            for (double x: _possibleConfigs.keySet()) {
+                min = Math.min(Math.abs(mouseX-x), min);
+            }
+            return min;
+        }
+
 	}
 
 	/**
@@ -124,11 +185,6 @@ public class ExpressionEditor extends Application {
                 expression.getNode().setLayoutX(WINDOW_WIDTH/4);
                 expression.getNode().setLayoutY(WINDOW_HEIGHT/3);
 
-
-                Expression copy = expression.deepCopy();
-                expressionPane.getChildren().add(copy.getNode());
-                copy.getNode().setLayoutX(WINDOW_WIDTH/4);
-                copy.getNode().setLayoutY(WINDOW_HEIGHT*2/3);
 
                 // If the parsed expression is a CompoundExpression, then register some callbacks
                 if (expression instanceof CompoundExpression) {

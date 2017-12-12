@@ -2,12 +2,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
-public class ParentheticalExpression extends AbstractCompoundExpression{
+public class ParentheticalExpression extends AbstractCompoundExpression {
 
     /**
      * Create the Expression with value "()"
      */
-    public ParentheticalExpression () {
+    public ParentheticalExpression() {
         super("()");
     }
 
@@ -26,17 +26,15 @@ public class ParentheticalExpression extends AbstractCompoundExpression{
             copy.addSubexpression(child);
             child.setParent(copy);
         }
-        //copy.getNode();
         // todo: fix deepCopy for drag
         return copy;
     }
 
-
-    @Override
     /**
      * Returns the JavaFX node associated with this expression.
      * @return the JavaFX node associated with this expression.
      */
+    @Override
     public Node getNode (){
         if (_node == null) {
             HBox box = new HBox();

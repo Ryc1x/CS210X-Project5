@@ -1,22 +1,28 @@
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.Node;
+import javafx.scene.text.Font;
 
 interface Expression {
 	/**
 	 * Border for showing a focused expression
 	 */
-	public static final Border RED_BORDER = new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
+	Border RED_BORDER = new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
 
 	/**
 	 * Border for showing a non-focused expression
 	 */
-	public static final Border NO_BORDER = null;
+	Border NO_BORDER = null;
 
 	/**
 	 * Color used for a "ghosted" expression
 	 */
-	public static final Color GHOST_COLOR = Color.LIGHTGREY;
+	Color GHOST_COLOR = Color.LIGHTGREY;
+
+    /**
+     * Default font used for displaying the expressions
+     */
+	Font DEFAULT_FONT = new Font("Cambria Math", 24.0);
 
 	/**
 	 * Returns the expression's parent.
@@ -44,6 +50,39 @@ interface Expression {
 	 * @return the JavaFX node associated with this expression.
 	 */
 	Node getNode ();
+
+    /**
+     * Remove the JavaFX node associated with this expression.
+     */
+    void clearNode ();
+
+    /**
+     * Set the JavaFX node with a red border.
+     */
+    void addRedBorder();
+
+    /**
+     * Remove the red border of the JvavaFX node.
+     */
+    void removeRedBorder();
+
+    /**
+     * Change the color of the node
+     * @param color the color to be assigned to the node
+     */
+    void changeColor(Color color);
+
+    /**
+     * Return the absolute x coordinate of the node.
+     * @return the absolute x coordinate of the node.
+     */
+    double getX ();
+
+    /**
+     * Return the absolute x coordinate of the node.
+     * @return the absolute x coordinate of the node.
+     */
+    double getY ();
 
 	/**
 	 * Recursively flattens the expression as much as possible
