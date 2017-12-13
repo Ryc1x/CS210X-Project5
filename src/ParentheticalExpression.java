@@ -26,7 +26,6 @@ public class ParentheticalExpression extends AbstractCompoundExpression {
             copy.addSubexpression(child);
             child.setParent(copy);
         }
-        // todo: fix deepCopy for drag
         return copy;
     }
 

@@ -30,7 +30,7 @@ public class ExpressionEditor extends Application {
         private List<Double> _possibleXValues = new LinkedList<>();
         private double _lastX, _lastY;
         private int _configIndex, _lastConfigIndex;
-        private boolean _isDragging;
+        private boolean _isDragging, _focusCleared;
 
 	    MouseEventHandler (Pane pane_, CompoundExpression rootExpression_) {
 	        _focus = rootExpression_;
@@ -44,59 +44,80 @@ public class ExpressionEditor extends Application {
             Expression nextFocus;
 
 			if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-                System.out.println("mouseX " + sceneX + " | mouseY " + sceneY);
                 if (_focus != _root) {
                     // get a copy of the _focus for dragging
                     setCopy();
                     _configIndex = _focus.getParent().getChildren().indexOf(_focus);
                     _lastConfigIndex = _configIndex;
-                    System.out.println("Config: " + _configIndex + " | Last Config: " + _lastConfigIndex);
+                    if (!checkOnNode(_focus.getNode(), sceneX, sceneY))
+                        clearFocus(); // clear focus if mouse is not pressed on the focus
                 }
                 _isDragging = false;
 			}
-            else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED && _copiedNode != null) {
-                if (_focus != _root){ // if there is a focus, drag it
+            else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED ) {
+                if (_focus != _root && _copiedNode != null){
+                    // if there is a focus, and we are trying to drag the node
                     _configIndex = getNearestConfigIndex();
                     if (_configIndex != _lastConfigIndex) { // detect an update in config
                         updateConfig();
                         _lastConfigIndex = _configIndex;
                     }
+                    // update the copied node's coordinate
+                    _copiedNode.setTranslateX(_copiedNode.getTranslateX() + (sceneX - _lastX));
+                    _copiedNode.setTranslateY(_copiedNode.getTranslateY() + (sceneY - _lastY));
                 }
-                // update the copied node's coordinate
-                _copiedNode.setTranslateX(_copiedNode.getTranslateX() + (sceneX - _lastX));
-                _copiedNode.setTranslateY(_copiedNode.getTranslateY() + (sceneY - _lastY));
                 _isDragging = true;
             }
             else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
 			    if (_copiedNode != null) { // if there is a copied node, remove it and reset the color of the focus
                     _pane.getChildren().remove(_copiedNode);
                     _focus.changeColor(Color.BLACK);
+                    if (_isDragging) // print out the expression after a "drop"
+                        System.out.println(_root.convertToString(0));
                 }
-                if (_lastX == sceneX && _lastY == sceneY && !_isDragging){
+                if (_lastX == sceneX && _lastY == sceneY && !_isDragging && !_focusCleared){
                     // if this is a mouse click, try to find the next focus
-                    if (_focus instanceof CompoundExpression)
-                        nextFocus = getNextFocusExpression(sceneX, sceneY, (AbstractCompoundExpression) _focus);
+                    nextFocus = getNextFocusExpression(sceneX, sceneY, _focus);
+                    if (nextFocus != null)  // if there is a next focus, dive into it
+                        setFocus(nextFocus);
                     else
-                        nextFocus = null;
-
-                    if (nextFocus != null) { // if there is a next focus, dive into it
-                        _focus.removeRedBorder();
-                        _focus = nextFocus;
-                        _focus.addRedBorder();
-                        generatePossibleXValues(_focus.getParent());
-                    } else { // else clear the focus
-                        _focus.removeRedBorder();
-                        _focus = _root;
-                        _possibleXValues.clear();
-                    }
+                        clearFocus();
                 }
+                _focusCleared = false;
             }
 
+            // update last config, x, and y.
             _lastConfigIndex = _configIndex;
             _lastX = sceneX;
             _lastY = sceneY;
 		}
 
+        /**
+         * Set next focus expression to focus
+         * @param nextFocus the next focus
+         */
+		private void setFocus (Expression nextFocus) {
+            _focus.removeRedBorder();
+            _focus = nextFocus;
+            _focus.addRedBorder();
+            generatePossibleXValues(_focus.getParent());
+        }
+
+        /**
+         * Clear the focus and set the focus back to the root
+         * (but don't show the border on the Application)
+         */
+        private void clearFocus () {
+            _focus.removeRedBorder();
+            _focus = _root;
+            _possibleXValues.clear();
+            _focusCleared = true;
+        }
+
+        /**
+         * Set a copy of the current focus for dragging,
+         * and change the color of focus to GHOST_COLOR
+         */
 		private void setCopy (){
             _focus.changeColor(Expression.GHOST_COLOR);
             _copy = _focus.deepCopy();
@@ -106,24 +127,27 @@ public class ExpressionEditor extends Application {
             _pane.getChildren().add(_copiedNode);
         }
 
-		private Expression getNextFocusExpression(double mouseX, double mouseY, AbstractCompoundExpression expression){
-            Bounds bound = expression.getNode().localToScene(expression.getNode().getBoundsInLocal());
-            double minX, maxX, minY, maxY;
-            minY = bound.getMinY();
-            maxY = bound.getMaxY();
-
-            if (mouseY < minY || mouseY > maxY)
-                return null;
-		    for (Expression expr: expression._children) {
-                bound = expr.getNode().localToScene(expr.getNode().getBoundsInLocal());
-                minX = bound.getMinX();
-                maxX = bound.getMaxX();
-                if (mouseX > minX && mouseX < maxX)
-                    return expr;
+        /**
+         * Try to get the next focus
+         * @param mouseX the x axis of the mouse click
+         * @param mouseY the y axis of the mouse click
+         * @param expression the current focus expression
+         * @return the next focus expression (null if can't find one)
+         */
+		private Expression getNextFocusExpression(double mouseX, double mouseY, Expression expression){
+            if (expression instanceof CompoundExpression){
+                for (Expression expr: ((CompoundExpression) expression).getChildren()) {
+                    if (checkOnNode(expr.getNode(), mouseX, mouseY))
+                        return expr;
+                }
             }
-		    return null;
+            return null;
         }
 
+        /**
+         * Generate possible x axis of focus for all possible configurations
+         * @param parent the parent of the current focus
+         */
         private void generatePossibleXValues (CompoundExpression parent){
 	        _possibleXValues.clear();
 	        int configurations = parent.getChildren().size();
@@ -138,9 +162,12 @@ public class ExpressionEditor extends Application {
                             + parent.getChildren().get(i).getNode().getLayoutBounds().getWidth());
                 }
             }
-            _possibleXValues.forEach(System.out::println);
 	    }
 
+        /**
+         * Return the nearest configuration index based on moving copied node
+         * @return the nearest configuration index based on moving copied node
+         */
         private int getNearestConfigIndex () {
 	        int index = 0;
 	        double distance;
@@ -155,21 +182,29 @@ public class ExpressionEditor extends Application {
             return index;
         }
 
+        /**
+         * Updates the configuration based on the changing in configuration index
+         */
         private void updateConfig () {
 	        CompoundExpression parentExpression = _focus.getParent();
             if (parentExpression instanceof BranchExpression)
                 ((BranchExpression) parentExpression).updateNode(_focus, _configIndex, _lastConfigIndex);
         }
 
-
-        // todo: bug - dragging other places can trigger the moving focus node.
-
-        // todo determine if the method is useful - prob delete later
-        private boolean mouseOnExpression (Expression expression, double mouseX, double mouseY){
-            double minX = expression.getX();
-            double minY = expression.getY();
-            double maxX = expression.getX() + expression.getNode().getLayoutBounds().getWidth();
-            double maxY = expression.getX() + expression.getNode().getLayoutBounds().getHeight();
+        /**
+         * Check if the given x and y coordinate is on the given node
+         * @param node the node need to be checked
+         * @param mouseX the x coordinate
+         * @param mouseY the y coordinate
+         * @return whether the given x and y coordinate is on the given node
+         */
+        private boolean checkOnNode (Node node, double mouseX, double mouseY){
+            Bounds bound = node.localToScene(node.getBoundsInLocal());
+            double minX, maxX, minY, maxY;
+            minY = bound.getMinY();
+            maxY = bound.getMaxY();
+            minX = bound.getMinX();
+            maxX = bound.getMaxX();
 
             return mouseX > minX && mouseX < maxX && mouseY > minY && mouseY < maxY;
         }
@@ -202,7 +237,7 @@ public class ExpressionEditor extends Application {
 
 		final Pane expressionPane = new Pane();
 
-		// Add the callback to handle when the Parse button is pressed	
+		// Add the callback to handle when the Parse button is pressed
 		button.setOnMouseClicked(e -> {
             // Try to parse the expression
             try {
@@ -232,7 +267,7 @@ public class ExpressionEditor extends Application {
 
 		// Reset the color to black whenever the user presses a key
 		textField.setOnKeyPressed(e -> textField.setStyle("-fx-text-fill: black"));
-		
+
 		final BorderPane root = new BorderPane();
 		root.setTop(queryPane);
 		root.setCenter(expressionPane);

@@ -64,9 +64,6 @@ public class BranchExpression extends AbstractCompoundExpression implements Comp
         _children.remove(lastConfigIndex);
         _children.add(configIndex, focus);
 
-        // todo delete the debugging and add a convertToString to the expression editor.
-        System.out.println(convertToString(0));
-
         // remove all signs - easier to modify the nodes
         List<Node> nodes = ((HBox)_node).getChildren();
         List<Node> signs = new LinkedList<>();
