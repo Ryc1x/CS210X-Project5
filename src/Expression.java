@@ -44,17 +44,11 @@ interface Expression {
 	 */
 	Expression deepCopy ();
 
-
 	/**
 	 * Returns the JavaFX node associated with this expression.
 	 * @return the JavaFX node associated with this expression.
 	 */
 	Node getNode ();
-
-    /**
-     * Remove the JavaFX node associated with this expression.
-     */
-    void clearNode ();
 
     /**
      * Set the JavaFX node with a red border.
@@ -107,7 +101,7 @@ interface Expression {
 	 * @param sb the StringBuffer to which to append tab characters.
 	 * @param indentLevel the number of tabs to append.
 	 */
-	public static void indent (StringBuffer sb, int indentLevel) {
+	static void indent (StringBuffer sb, int indentLevel) {
 		for (int i = 0; i < indentLevel; i++) {
 			sb.append('\t');
 		}

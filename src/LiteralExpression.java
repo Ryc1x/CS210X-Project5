@@ -1,11 +1,10 @@
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
 public class LiteralExpression implements Expression{
 
-    CompoundExpression _parent;
+    private CompoundExpression _parent;
     Node _node;
     String _value;
 
@@ -54,13 +53,6 @@ public class LiteralExpression implements Expression{
             _node = label;
         }
         return _node;
-    }
-
-    /**
-     * Remove the JavaFX node associated with this expression.
-     */
-    public void clearNode (){
-        _node = null;
     }
 
     /**

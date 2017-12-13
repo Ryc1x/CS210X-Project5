@@ -24,14 +24,11 @@ public class BranchExpression extends AbstractCompoundExpression implements Comp
     @Override
     public Expression deepCopy() {
         CompoundExpression copy = new BranchExpression(_value);
-        //Node copiedNode = new
         for (Expression expr: _children) {
             Expression child = expr.deepCopy();
             copy.addSubexpression(child);
             child.setParent(copy);
         }
-        //copy.getNode();
-        // todo: fix deepCopy for drag
         return copy;
     }
 
@@ -56,6 +53,42 @@ public class BranchExpression extends AbstractCompoundExpression implements Comp
             _node = box;
         }
         return _node;
+    }
+
+    /**
+     * Update the JavaFX node according to the Expression structure
+     * @param focus the focus need to be updated
+     */
+    public void updateNode (Expression focus, int configIndex, int lastConfigIndex) {
+        // update the expression tree first
+        _children.remove(lastConfigIndex);
+        _children.add(configIndex, focus);
+
+        // todo delete the debugging and add a convertToString to the expression editor.
+        System.out.println(convertToString(0));
+
+        // remove all signs - easier to modify the nodes
+        List<Node> nodes = ((HBox)_node).getChildren();
+        List<Node> signs = new LinkedList<>();
+        for (Node node : nodes) {
+            // check if a node is "+" or "·"
+            if (node instanceof Label){
+                if (((Label) node).getText().matches("^\\+|·$"))
+                    signs.add(node);
+            }
+        }
+        nodes.removeAll(signs);
+
+        // change the place of the focus node
+        nodes.remove(focus.getNode());
+        nodes.add(configIndex, focus.getNode());
+
+        // add all signs back to the nodes
+        for (int i = nodes.size(); i > 1 ; i--) {
+            Label label = new Label(_value);
+            label.setFont(DEFAULT_FONT);
+            nodes.add(i-1, label);
+        }
     }
 
     /**

@@ -13,12 +13,12 @@ public class Test{
         //System.out.println(expr.deepCopy().convertToString(0));
         //System.out.println(expr.getNode());
 
-        List<Integer> list = new LinkedList<>();
-        list.add(1);
-        list.add(1,1);
-        list.forEach(System.out::println);
+        List<String> list = new LinkedList<>();
+        list.add("+");
+        list.add(1,"·");
 
-        //javafx.scene.text.Font.getFamilies().forEach(System.out::println);
+
+        list.forEach(str -> System.out.println(str.matches("^\\+|·$")));
 
     }
 }

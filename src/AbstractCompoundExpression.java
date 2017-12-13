@@ -50,27 +50,6 @@ abstract public class AbstractCompoundExpression extends LiteralExpression imple
         }
     }
 
-    /**
-     * Return the absolute x coordinate of the node.
-     * @return the absolute x coordinate of the node.
-     */
-    public double getX (){
-        if (_parent != null)
-            return _node.getLayoutX() + _parent.getX();
-        else
-            return _node.getLayoutX() ;
-    }
-
-    /**
-     * Return the absolute x coordinate of the node.
-     * @return the absolute x coordinate of the node.
-     */
-    public double getY () {
-        if (_parent != null)
-            return _node.getLayoutY() + _parent.getY();
-        else
-            return _node.getLayoutY();
-    }
 
     /**
      * Set the JavaFX node with a red border.
